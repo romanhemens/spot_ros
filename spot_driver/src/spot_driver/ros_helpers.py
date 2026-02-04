@@ -3,6 +3,12 @@ import typing
 
 import numpy as np
 import rospy
+
+try:
+    import cv2
+    _CV2_AVAILABLE = True
+except ImportError:
+    _CV2_AVAILABLE = False
 import transforms3d
 from bosdyn.api import image_pb2, robot_state_pb2, point_cloud_pb2
 from bosdyn.api import world_object_pb2, geometry_pb2
@@ -149,6 +155,18 @@ def populateTransformStamped(
     return new_tf
 
 
+def _jpeg_to_raw_rgb(data):
+    """Decode JPEG bytes to raw RGB so Image message step/height/width match data size."""
+    if not _CV2_AVAILABLE:
+        return None
+    buf = np.frombuffer(data, dtype=np.uint8)
+    decoded = cv2.imdecode(buf, cv2.IMREAD_COLOR)
+    if decoded is None:
+        return None
+    decoded_rgb = cv2.cvtColor(decoded, cv2.COLOR_BGR2RGB)
+    return decoded_rgb.tobytes(), decoded_rgb.shape[1], decoded_rgb.shape[0]
+
+
 def GetImageMsg(
     data: image_pb2.ImageResponse, spot_wrapper: SpotWrapper
 ) -> typing.Tuple[Image, CameraInfo]:
@@ -170,12 +188,20 @@ def GetImageMsg(
     image_msg.width = data.shot.image.cols
 
     # Color/greyscale formats.
-    # JPEG format
+    # JPEG format: decode to raw RGB so step/height/width match data size (RViz/OGRE).
     if data.shot.image.format == image_pb2.Image.FORMAT_JPEG:
         image_msg.encoding = "rgb8"
         image_msg.is_bigendian = True
-        image_msg.step = 3 * data.shot.image.cols
-        image_msg.data = data.shot.image.data
+        raw_result = _jpeg_to_raw_rgb(data.shot.image.data)
+        if raw_result is not None:
+            raw_bytes, w, h = raw_result
+            image_msg.width = w
+            image_msg.height = h
+            image_msg.step = 3 * w
+            image_msg.data = raw_bytes
+        else:
+            image_msg.step = 3 * data.shot.image.cols
+            image_msg.data = data.shot.image.data
 
     # Uncompressed.  Requires pixel_format.
     if data.shot.image.format == image_pb2.Image.FORMAT_RAW:
@@ -1162,12 +1188,20 @@ def bosdyn_data_to_image_and_camera_info_msgs(
     image_msg.width = data.shot.image.cols
 
     # Color/greyscale formats.
-    # JPEG format
+    # JPEG format: decode to raw RGB so step/height/width match data size (RViz/OGRE).
     if data.shot.image.format == image_pb2.Image.FORMAT_JPEG:
         image_msg.encoding = "rgb8"
         image_msg.is_bigendian = True
-        image_msg.step = 3 * data.shot.image.cols
-        image_msg.data = data.shot.image.data
+        raw_result = _jpeg_to_raw_rgb(data.shot.image.data)
+        if raw_result is not None:
+            raw_bytes, w, h = raw_result
+            image_msg.width = w
+            image_msg.height = h
+            image_msg.step = 3 * w
+            image_msg.data = raw_bytes
+        else:
+            image_msg.step = 3 * data.shot.image.cols
+            image_msg.data = data.shot.image.data
 
     # Uncompressed.  Requires pixel_format.
     if data.shot.image.format == image_pb2.Image.FORMAT_RAW:

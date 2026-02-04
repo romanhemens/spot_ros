@@ -22,6 +22,8 @@
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>velodyne_pointcloud</exec_depend>
   <exec_depend>python-transforms3d-pip</exec_depend>
+  <!-- For JPEG→raw RGB decoding so RViz can display camera images (optional: falls back without cv2) -->
+  <exec_depend>python3-opencv</exec_depend>
 
   <test_depend>rostest</test_depend>
   <test_depend>rosunit</test_depend>

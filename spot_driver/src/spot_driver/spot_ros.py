@@ -2021,6 +2021,7 @@ class SpotROS:
         self.use_take_lease = rospy.get_param("~use_take_lease", False)
         self.get_lease_on_action = rospy.get_param("~get_lease_on_action", False)
         self.depth_in_visual = rospy.get_param("~depth_in_visual", False)
+        self.rgb_cameras = rospy.get_param("~rgb_cameras", True)
         self.is_charging = False
 
         self.initialize_tf2()
@@ -2039,6 +2040,7 @@ class SpotROS:
             callbacks=self.callbacks,
             use_take_lease=self.use_take_lease,
             get_lease_on_action=self.get_lease_on_action,
+            rgb_cameras=self.rgb_cameras,
         )
 
         if not self.spot_wrapper.is_valid:
