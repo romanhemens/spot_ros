@@ -1,3 +1,4 @@
 [submodule "spot_wrapper"]
 	path = spot_wrapper
-	url = git@github.com:romanhemens/spot_wrapper.git #git@github.com:bdaiinstitute/spot_wrapper
+	url = https://github.com/romanhemens/spot_ros.git #git@github.com:romanhemens/spot_wrapper.git #git@github.com:bdaiinstitute/spot_wrapper
+	branch = master
