@@ -31,7 +31,7 @@ mode_parent_odom_tf: odom # vision
 
 claim:
   # If true, forcefully take the lease, instead of acquiring it, which can fail if someone else has it
-  use_take_lease: False
+  use_take_lease: True
   # If true, try and claim the lease when doing actions if we don't already have it. Also automatically powers on for
   # stand, rollover and self-right commands
   get_lease_on_action: False

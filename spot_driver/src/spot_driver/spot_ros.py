@@ -2018,8 +2018,9 @@ class SpotROS:
         self.estop_timeout = rospy.get_param("~estop_timeout", 9.0)
         self.autonomy_enabled = rospy.get_param("~autonomy_enabled", True)
         self.allow_motion = rospy.get_param("~allow_motion", True)
-        self.use_take_lease = rospy.get_param("~use_take_lease", False)
-        self.get_lease_on_action = rospy.get_param("~get_lease_on_action", False)
+        # claim/use_take_lease aus spot_ros.yaml (unter claim: use_take_lease: True)
+        self.use_take_lease = rospy.get_param("~claim/use_take_lease", rospy.get_param("~use_take_lease", False))
+        self.get_lease_on_action = rospy.get_param("~claim/get_lease_on_action", rospy.get_param("~get_lease_on_action", False))
         self.depth_in_visual = rospy.get_param("~depth_in_visual", False)
         self.rgb_cameras = rospy.get_param("~rgb_cameras", True)
         self.is_charging = False
